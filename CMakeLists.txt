@@ -10,32 +10,38 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+include_directories(${OpenCV_INCLUDE_DIRS})
+list(APPEND CMAKE_PREFIX_PATH "/opt/VimbaX_2023-4/api")
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(OpenCV REQUIRED)
+find_package(auv_interfaces REQUIRED)
 find_package(cv_bridge REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(Vmb REQUIRED COMPONENTS CPP NAMES Vmb VmbC VmbCPP VmbImageTransform)
 
-include_directories(${OpenCV_INCLUDE_DIRS})
-include_directories(/opt/VimbaX_2023-4/api/include)
-link_directories(/opt/VimbaX_2023-4/api/lib)
-
-add_executable(alliedvision_controller src/alliedvision_controller.cpp)
-ament_target_dependencies(alliedvision_controller PUBLIC
+add_executable(alliedvision_control src/alliedvision_control.cpp)
+ament_target_dependencies(alliedvision_control PUBLIC
   "OpenCV"
+  auv_interfaces
   cv_bridge
   rclcpp
+  sensor_msgs
+  Vmb
 )
-target_link_libraries(alliedvision_controller PRIVATE
+target_link_libraries(alliedvision_control PRIVATE
   ${OpenCV_LIBRARIES}
+  Vmb::CPP
 )
-target_include_directories(alliedvision_controller PUBLIC
+target_include_directories(alliedvision_control PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
 
 install(TARGETS
-  alliedvision_controller
+  alliedvision_control
   DESTINATION lib/${PROJECT_NAME}
 )
 
